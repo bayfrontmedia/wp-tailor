@@ -256,9 +256,15 @@ class Tailor {
 	private static function updateLoginImageLink(): void {
 
 		if ( get_field( 'tailor_update_login_image_link', 'option' ) ) {
+
 			add_filter( 'login_headerurl', function () {
 				return home_url();
 			} );
+
+			add_filter('login_headertext', function () {
+				return get_bloginfo('name');
+			});
+
 		}
 
 	}

@@ -13,6 +13,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `Fixed` for any bug fixes.
 - `Security` in case of vulnerabilities
 
+## [1.1.0] - Upcoming
+
+### Added
+
+- Added `login_headertext` filter to update login image text as site name.
+
 ## [1.0.0] - 2023.10.13
 
 ### Added
