@@ -1,0 +1,35 @@
+{
+  "name": "bayfrontmedia/wp-tailor",
+  "description": "Create a tailored WordPress environment by customizing its default functionality.",
+  "homepage": "https://github.com/bayfrontmedia/wp-tailor",
+  "license" : "GPL-3.0-only",
+  "type": "wordpress-plugin",
+  "keywords": [
+    "wordpress",
+    "wp-tailor",
+    "bayfrontmedia"
+  ],
+  "authors": [
+    {
+      "name": "John Robinson",
+      "email": "john@bayfrontmedia.com",
+      "homepage": "https://www.bayfrontmedia.com"
+    }
+  ],
+  "support": {
+    "issues": "https://github.com/bayfrontmedia/wp-tailor/issues"
+  },
+  "config": {
+    "optimize-autoloader": true,
+    "preferred-install": "dist"
+  },
+  "require": {
+    "php": ">=8.0",
+    "bayfrontmedia/php-array-helpers": "^2.0"
+  },
+  "autoload": {
+    "psr-4": {
+      "Bayfront\\Tailor\\": "src/"
+    }
+  }
+}
