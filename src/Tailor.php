@@ -3,6 +3,7 @@
 namespace Bayfront\Tailor;
 
 use Bayfront\ArrayHelpers\Arr;
+use Bayfront\HttpRequest\Request;
 use WP_Admin_Bar;
 use WP_Error;
 
@@ -74,6 +75,7 @@ class Tailor {
 		}
 
 		self::addOptionsPage();
+		self::handleRedirects();
 		self::addPageExcerpts();
 		self::removeAutoParagraphTags();
 		self::disableEmojis();
@@ -107,6 +109,54 @@ class Tailor {
 			'redirect'   => true,
 			'autoload'   => false
 		] );
+
+	}
+
+	/**
+	 * Handle case-insensitive URL redirects.
+	 *
+	 * @return void
+	 */
+	public static function handleRedirects(): void {
+
+		$home_url = strtolower(rtrim(get_home_url(), '/'));
+		$url = strtolower(rtrim(Request::getUrl(), '/'));
+
+		if (have_rows('tailor_url_redirects', 'option')) {
+
+			while (have_rows('tailor_url_redirects', 'option')) {
+
+				the_row();
+
+				$from = strtolower(get_sub_field('tailor_redirect_from'));
+
+				if ($url == $home_url . $from) {
+
+					$to = get_sub_field('tailor_redirect_to');
+
+					if (str_starts_with($to, 'http')) { // Full URL
+
+						$redirect = $to;
+
+					} else { // Relative to home
+
+						$redirect = $home_url . $to; // Includes locale
+						//$redirect = getenv('WP_HOME') . $to;
+
+					}
+
+					$count = (int)get_sub_field('tailor_redirect_count');
+					$count++;
+					update_sub_field('tailor_redirect_count', $count);
+
+					wp_redirect($redirect, get_sub_field('tailor_redirect_status_code'));
+					exit;
+
+				}
+
+			}
+
+		}
 
 	}
 
@@ -256,9 +306,15 @@ class Tailor {
 	private static function updateLoginImageLink(): void {
 
 		if ( get_field( 'tailor_update_login_image_link', 'option' ) ) {
+
 			add_filter( 'login_headerurl', function () {
 				return home_url();
 			} );
+
+			add_filter( 'login_headertext', function () {
+				return get_bloginfo( 'name' );
+			} );
+
 		}
 
 	}
@@ -342,6 +398,11 @@ class Tailor {
 						'user-info'        => 'User info (Top secondary > My account > User actions)',
 						'edit-profile'     => 'Edit profile (Top secondary > My account > User actions)',
 						'logout'           => 'Logout (Top secondary > My account > User actions)',
+						'customize'        => 'Customize',
+						'appearance'       => 'Appearance',
+						'updates'          => 'Updates',
+						'themes'           => 'Themes',
+						'search'           => 'Search'
 					),
 					'default_value'             => array(),
 					'return_format'             => 'value',
@@ -414,7 +475,7 @@ class Tailor {
 
 		acf_add_local_field_group( array(
 			'key'                   => 'group_652955f879a84',
-			'title'                 => 'WP-Tailor fields',
+			'title'                 => 'WP-Tailor Fields',
 			'fields'                => array(
 				array(
 					'key'                       => 'field_652958234104f',
@@ -652,6 +713,46 @@ class Tailor {
 					'ui_off_text'       => '',
 					'ui'                => 1,
 				),
+				array(
+					'key' => 'field_652d589f63e53',
+					'label' => 'Head HTML',
+					'name' => 'tailor_head_html',
+					'aria-label' => '',
+					'type' => 'textarea',
+					'instructions' => '',
+					'required' => 0,
+					'conditional_logic' => 0,
+					'wrapper' => array(
+						'width' => '',
+						'class' => '',
+						'id' => '',
+					),
+					'default_value' => '',
+					'maxlength' => '',
+					'rows' => '',
+					'placeholder' => '',
+					'new_lines' => '',
+				),
+				array(
+					'key' => 'field_652d58be63e54',
+					'label' => 'Footer HTML',
+					'name' => 'tailor_footer_html',
+					'aria-label' => '',
+					'type' => 'textarea',
+					'instructions' => '',
+					'required' => 0,
+					'conditional_logic' => 0,
+					'wrapper' => array(
+						'width' => '',
+						'class' => '',
+						'id' => '',
+					),
+					'default_value' => '',
+					'maxlength' => '',
+					'rows' => '',
+					'placeholder' => '',
+					'new_lines' => '',
+				)
 			),
 			'location'              => array(
 				array(
@@ -799,6 +900,147 @@ class Tailor {
 			'show_in_rest'          => 0,
 		) );
 
+		acf_add_local_field_group( array(
+			'key' => 'group_652d53b230be3',
+			'title' => 'WP-Tailor Redirects',
+			'fields' => array(
+				array(
+					'key' => 'field_652d53b23bd8e',
+					'label' => 'URL Redirects',
+					'name' => 'tailor_url_redirects',
+					'aria-label' => '',
+					'type' => 'repeater',
+					'instructions' => '',
+					'required' => 0,
+					'conditional_logic' => 0,
+					'wrapper' => array(
+						'width' => '',
+						'class' => '',
+						'id' => '',
+					),
+					'layout' => 'table',
+					'pagination' => 0,
+					'min' => 0,
+					'max' => 0,
+					'collapsed' => '',
+					'button_label' => 'Add Row',
+					'rows_per_page' => 20,
+					'sub_fields' => array(
+						array(
+							'key' => 'field_652d53eb3bd8f',
+							'label' => 'From',
+							'name' => 'tailor_redirect_from',
+							'aria-label' => '',
+							'type' => 'text',
+							'instructions' => '',
+							'required' => 0,
+							'conditional_logic' => 0,
+							'wrapper' => array(
+								'width' => '',
+								'class' => '',
+								'id' => '',
+							),
+							'default_value' => '/',
+							'maxlength' => '',
+							'placeholder' => '',
+							'prepend' => '',
+							'append' => '',
+							'parent_repeater' => 'field_652d53b23bd8e',
+						),
+						array(
+							'key' => 'field_652d54063bd90',
+							'label' => 'To',
+							'name' => 'tailor_redirect_to',
+							'aria-label' => '',
+							'type' => 'text',
+							'instructions' => '',
+							'required' => 0,
+							'conditional_logic' => 0,
+							'wrapper' => array(
+								'width' => '',
+								'class' => '',
+								'id' => '',
+							),
+							'default_value' => '/',
+							'maxlength' => '',
+							'placeholder' => '',
+							'prepend' => '',
+							'append' => '',
+							'parent_repeater' => 'field_652d53b23bd8e',
+						),
+						array(
+							'key' => 'field_652d54123bd91',
+							'label' => 'Status code',
+							'name' => 'tailor_redirect_status_code',
+							'aria-label' => '',
+							'type' => 'select',
+							'instructions' => '',
+							'required' => 0,
+							'conditional_logic' => 0,
+							'wrapper' => array(
+								'width' => '',
+								'class' => '',
+								'id' => '',
+							),
+							'choices' => array(
+								301 => '301 Moved Permanently',
+								302 => '302 Found',
+							),
+							'default_value' => 302,
+							'return_format' => 'value',
+							'multiple' => 0,
+							'allow_null' => 0,
+							'ui' => 0,
+							'ajax' => 0,
+							'placeholder' => '',
+							'parent_repeater' => 'field_652d53b23bd8e',
+						),
+						array(
+							'key' => 'field_652d54403bd92',
+							'label' => 'Count',
+							'name' => 'tailor_redirect_count',
+							'aria-label' => '',
+							'type' => 'number',
+							'instructions' => '',
+							'required' => 0,
+							'conditional_logic' => 0,
+							'wrapper' => array(
+								'width' => '',
+								'class' => '',
+								'id' => '',
+							),
+							'default_value' => 0,
+							'min' => '',
+							'max' => '',
+							'placeholder' => '',
+							'step' => 1,
+							'prepend' => '',
+							'append' => '',
+							'parent_repeater' => 'field_652d53b23bd8e',
+						),
+					),
+				),
+			),
+			'location' => array(
+				array(
+					array(
+						'param' => 'options_page',
+						'operator' => '==',
+						'value' => 'tailor-settings',
+					),
+				),
+			),
+			'menu_order' => 0,
+			'position' => 'normal',
+			'style' => 'default',
+			'label_placement' => 'top',
+			'instruction_placement' => 'label',
+			'hide_on_screen' => '',
+			'active' => true,
+			'description' => '',
+			'show_in_rest' => 0,
+		) );
+
 	}
 
 	/*
@@ -905,8 +1147,14 @@ class Tailor {
 	public static function removeBlockLibraryCss(): void {
 
 		if ( get_field( 'tailor_remove_block_library_css', 'option' ) ) {
+
 			wp_dequeue_style( 'wp-block-library' );
 			wp_dequeue_style( 'wp-block-library-theme' );
+
+			add_action('wp_footer', function () {
+				wp_dequeue_style('core-block-supports');
+			});
+
 		}
 
 	}
@@ -921,6 +1169,34 @@ class Tailor {
 
 		if ( get_field( 'tailor_remove_global_styles', 'option' ) ) {
 			wp_dequeue_style( 'global-styles' );
+		}
+
+	}
+
+	/**
+	 * Add HTML to <head> via wp_head hook.
+	 *
+	 * @return void
+	 */
+	public static function addHeadHtml(): void
+	{
+
+		if ( get_field( 'tailor_head_html', 'option' ) && get_field( 'tailor_head_html', 'option' ) !== '') {
+			echo get_field( 'tailor_head_html', 'option' );
+		}
+
+	}
+
+	/**
+	 * Add HTML to footer via wp_footer hook.
+	 *
+	 * @return void
+	 */
+	public static function addFooterHtml(): void
+	{
+
+		if ( get_field( 'tailor_footer_html', 'option' ) && get_field( 'tailor_footer_html', 'option' ) !== '') {
+			echo get_field( 'tailor_footer_html', 'option' );
 		}
 
 	}

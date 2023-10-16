@@ -4,7 +4,7 @@
  * Plugin Name:  WP-Tailor
  * Plugin URI:   https://github.com/bayfrontmedia/wp-tailor
  * Description:  Create a tailored WordPress environment by customizing its default functionality.
- * Version:      1.0.0
+ * Version:      1.1.0
  * Author:       Bayfront Media
  * Author URI:   https://www.bayfrontmedia.com
  * License:      MIT License
@@ -31,3 +31,5 @@ add_action( 'admin_bar_menu', [ 'Bayfront\Tailor\Tailor', 'customizeAdminBar' ],
 add_action( 'wp_dashboard_setup', [ 'Bayfront\Tailor\Tailor', 'customizeDashboard' ] );
 add_action( 'wp_print_styles', [ 'Bayfront\Tailor\Tailor', 'removeBlockLibraryCss' ], 9999 );
 add_action( 'wp_enqueue_scripts', [ 'Bayfront\Tailor\Tailor', 'removeGlobalStyles' ], 9999 );
+add_action('wp_head', ['Bayfront\Tailor\Tailor', 'addHeadHtml']);
+add_action('wp_footer', ['Bayfront\Tailor\Tailor', 'addFooterHtml']);
