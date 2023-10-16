@@ -713,6 +713,46 @@ class Tailor {
 					'ui_off_text'       => '',
 					'ui'                => 1,
 				),
+				array(
+					'key' => 'field_652d589f63e53',
+					'label' => 'Head HTML',
+					'name' => 'tailor_head_html',
+					'aria-label' => '',
+					'type' => 'textarea',
+					'instructions' => '',
+					'required' => 0,
+					'conditional_logic' => 0,
+					'wrapper' => array(
+						'width' => '',
+						'class' => '',
+						'id' => '',
+					),
+					'default_value' => '',
+					'maxlength' => '',
+					'rows' => '',
+					'placeholder' => '',
+					'new_lines' => '',
+				),
+				array(
+					'key' => 'field_652d58be63e54',
+					'label' => 'Footer HTML',
+					'name' => 'tailor_footer_html',
+					'aria-label' => '',
+					'type' => 'textarea',
+					'instructions' => '',
+					'required' => 0,
+					'conditional_logic' => 0,
+					'wrapper' => array(
+						'width' => '',
+						'class' => '',
+						'id' => '',
+					),
+					'default_value' => '',
+					'maxlength' => '',
+					'rows' => '',
+					'placeholder' => '',
+					'new_lines' => '',
+				)
 			),
 			'location'              => array(
 				array(
@@ -1129,6 +1169,34 @@ class Tailor {
 
 		if ( get_field( 'tailor_remove_global_styles', 'option' ) ) {
 			wp_dequeue_style( 'global-styles' );
+		}
+
+	}
+
+	/**
+	 * Add HTML to <head> via wp_head hook.
+	 *
+	 * @return void
+	 */
+	public static function addHeadHtml(): void
+	{
+
+		if ( get_field( 'tailor_head_html', 'option' ) && get_field( 'tailor_head_html', 'option' ) !== '') {
+			echo get_field( 'tailor_head_html', 'option' );
+		}
+
+	}
+
+	/**
+	 * Add HTML to footer via wp_footer hook.
+	 *
+	 * @return void
+	 */
+	public static function addFooterHtml(): void
+	{
+
+		if ( get_field( 'tailor_footer_html', 'option' ) && get_field( 'tailor_footer_html', 'option' ) !== '') {
+			echo get_field( 'tailor_footer_html', 'option' );
 		}
 
 	}
